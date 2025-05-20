@@ -18,7 +18,7 @@ np.random.seed(42)
 random.seed(42)
 
 
-param_file =  "parameter_files/params_SBM_10000.json"
+param_file = "parameter_files/params_SBM_10000.json"
 save = True
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -29,11 +29,11 @@ n_graphs_to_test = 200
 with open(param_file, "r") as file:
     parameters = json.load(file)
 
-path_save = get_filename(parameters, "true_losses")
+path_save = get_filename(parameters, "solver_losses")
 
 # load data
 
-if parameters["dataset"]=="SBM":
+if parameters["dataset"] == "SBM":
     dataset = get_dataset(
         parameters,
     )
@@ -63,25 +63,27 @@ loss = get_loss(parameters)
 # initialize result dictionary
 dic_results = {}
 
-dic_results["plans_test_solver"]=[]
-dic_results["filenames_test_solver"]=[]
-dic_results["filenames_train_solver"]=[]
-dic_results["losses_test_solver"]=[]
-dic_results["losses_test_solver"]=[]
-dic_results["losses_test_solver_all"]=[]
-dic_results["times_test_solver"]=[]
-dic_results["plans_train_solver"]=[]
-dic_results["losses_train_solver"]=[]
-dic_results["losses_train_solver_all"]=[]
-dic_results["times_train_solver"]=[]
+dic_results["plans_test_solver"] = []
+dic_results["filenames_test_solver"] = []
+dic_results["filenames_train_solver"] = []
+dic_results["losses_test_solver"] = []
+dic_results["losses_test_solver"] = []
+dic_results["losses_test_solver_all"] = []
+dic_results["times_test_solver"] = []
+dic_results["plans_train_solver"] = []
+dic_results["losses_train_solver"] = []
+dic_results["losses_train_solver_all"] = []
+dic_results["times_train_solver"] = []
 
-rhos = torch.exp(torch.rand((n_graphs_to_test, 1), device=device) * -parameters["rho_range"])
+rhos = torch.exp(
+    torch.rand((n_graphs_to_test, 1), device=device) * -parameters["rho_range"]
+)
 alphas = torch.rand((n_graphs_to_test, 1), device=device)
 dic_results["rhos"] = rhos
 dic_results["alphas"] = alphas
 
 # test the trained model on the test set
-for type in ["train","test"]:
+for type in ["train", "test"]:
     if type == "test":
         inds_graph = inds_graph_test
     else:
@@ -90,7 +92,6 @@ for type in ["train","test"]:
     # test the trained model
     print("testing on test data for random rhos")
     for i, ind in enumerate(tqdm(inds_graph)):
-
         if type == "train":
             if parameters["dataset"] == "SBM":
                 graph_pair = train_set.__getitem__(ind)
@@ -108,7 +109,7 @@ for type in ["train","test"]:
         alpha = alphas[i][0]
         solver = FUGWSolver(tol_bcd=1e-6, tol_uot=1e-6, tol_loss=1e-6)
         M = ot.dist(graph_pair.x_s, graph_pair.x_t)
-        C1, C2 = graph_pair.connectivity_s,graph_pair.connectivity_t
+        C1, C2 = graph_pair.connectivity_s, graph_pair.connectivity_t
         C1 = C1[:, : M.shape[0]]
         C2 = C2[:, : M.shape[1]]
 

@@ -75,12 +75,12 @@ in_channels = example_graph.x_s.shape[1]
 model = get_model(parameters, in_channels)
 model = model.to(device)
 path_trained_model = get_filename(parameters, "trained_model")
-path_true_losses = get_filename(parameters, "true_losses")
+path_solver_losses = get_filename(parameters, "solver_losses")
 
 print(path_trained_model)
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=FutureWarning)
-    true_losses = np.load(path_true_losses, allow_pickle=True).item()
+    solver_losses = np.load(path_solver_losses, allow_pickle=True).item()
 checkpoint = torch.load(
     path_trained_model, weights_only=False, map_location=torch.device("cpu")
 )
@@ -103,8 +103,8 @@ dic_results = {
     "times_test": [],
 }
 
-rhos = true_losses["rhos"].to(device)
-alphas = true_losses["alphas"].to(device)
+rhos = solver_losses["rhos"].to(device)
+alphas = solver_losses["alphas"].to(device)
 dic_results["rhos"] = rhos
 dic_results["alphas"] = alphas
 

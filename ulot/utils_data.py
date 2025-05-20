@@ -146,7 +146,7 @@ class SBM(Data):
             If True, generate random graphs.
         random_n_nodes : bool
             If True, generate random number of nodes.
-        noise : float   
+        noise : float
             Noise level.
         p_intra : float
             Probability of intra-cluster edges.
@@ -263,6 +263,3 @@ class SBM(Data):
 
     def __getitem__(self, idx):
         return self.all_pairs[idx]
-
-
-

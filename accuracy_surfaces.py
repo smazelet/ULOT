@@ -65,7 +65,6 @@ dataset_2 = SBM(
     noise=0.5,
     p_intra=0.5,
     p_inter=0.05,
-
 )
 n_alpha = 50
 n_rho = 50
@@ -77,16 +76,15 @@ all_rhos_2 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_alphas_2 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_losses_2 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_accuracy_2 = torch.zeros(n_graphs, n_alpha, n_rho)
-all_sums=torch.zeros(n_graphs, n_alpha, n_rho)
+all_sums = torch.zeros(n_graphs, n_alpha, n_rho)
 
 for k in tqdm(range(n_graphs)):
     for i, alpha in enumerate(alphas):
         for j, rho in enumerate(rhos):
-            #graph_pair = torch.load("graph_pair")
-            graph_pair=dataset_2.__getitem__(k)
+            # graph_pair = torch.load("graph_pair")
+            graph_pair = dataset_2.__getitem__(k)
             graph_pair_batch = Batch.from_data_list(
                 [graph_pair], follow_batch=["x_s", "x_t"]
-
             )
 
             batch_indices_s = graph_pair_batch.x_s_batch
@@ -117,33 +115,33 @@ for k in tqdm(range(n_graphs)):
                 batched_alphas_s,
                 batched_alphas_t,
             )
-           # print(P)
+            # print(P)
 
             col_sums = torch.sum(P[0], dim=0)  # Shape: [n_t]
             safe_col_sums = torch.clamp(col_sums, min=1e-15)
 
-            
-            labels_s=graph_pair.y_s
-            labels_t=graph_pair.y_t
+            labels_s = graph_pair.y_s
+            labels_t = graph_pair.y_t
 
             one_hot_matrix_s = F.one_hot(labels_s, num_classes=3).float()
             one_hot_matrix_t = F.one_hot(labels_t, num_classes=3).float()
 
             weight = torch.diag(1 / safe_col_sums)
-            weighted_P=torch.mm(P[0],weight).T
+            weighted_P = torch.mm(P[0], weight).T
             labels_probability = torch.mm(weighted_P, one_hot_matrix_s)
 
-
-            log_probs =  torch.log(torch.softmax(torch.clamp(labels_probability, min=1e-10),dim=1)  )          
+            log_probs = torch.log(
+                torch.softmax(torch.clamp(labels_probability, min=1e-10), dim=1)
+            )
             predicted_labels = torch.max(log_probs, axis=1).indices
-            bool_accuracy = (predicted_labels == labels_t)
-            #loss = criterion(logits, labels_t)
-            loss = F.kl_div(log_probs, one_hot_matrix_t, reduction='batchmean')
+            bool_accuracy = predicted_labels == labels_t
+            # loss = criterion(logits, labels_t)
+            loss = F.kl_div(log_probs, one_hot_matrix_t, reduction="batchmean")
 
             accuracy = torch.sum(bool_accuracy) / n_nodes_target
 
             all_losses_2[k, i, j] = loss.detach()
-            accuracy=accuracy.detach()
+            accuracy = accuracy.detach()
             all_accuracy_2[k, i, j] = accuracy
 
 
@@ -167,7 +165,6 @@ dataset_3 = SBM(
     noise=0.5,
     p_intra=0.5,
     p_inter=0.05,
-
 )
 n_alpha = 50
 n_rho = 50
@@ -179,16 +176,15 @@ all_rhos_3 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_alphas_3 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_losses_3 = torch.zeros(n_graphs, n_alpha, n_rho)
 all_accuracy_3 = torch.zeros(n_graphs, n_alpha, n_rho)
-all_sums=torch.zeros(n_graphs, n_alpha, n_rho)
+all_sums = torch.zeros(n_graphs, n_alpha, n_rho)
 
 for k in tqdm(range(n_graphs)):
     for i, alpha in enumerate(alphas):
         for j, rho in enumerate(rhos):
-            #graph_pair = torch.load("graph_pair")
-            graph_pair=dataset_3.__getitem__(k)
+            # graph_pair = torch.load("graph_pair")
+            graph_pair = dataset_3.__getitem__(k)
             graph_pair_batch = Batch.from_data_list(
                 [graph_pair], follow_batch=["x_s", "x_t"]
-
             )
 
             batch_indices_s = graph_pair_batch.x_s_batch
@@ -219,40 +215,37 @@ for k in tqdm(range(n_graphs)):
                 batched_alphas_s,
                 batched_alphas_t,
             )
-           # print(P)
+            # print(P)
 
             col_sums = torch.sum(P[0], dim=0)  # Shape: [n_t]
             safe_col_sums = torch.clamp(col_sums, min=1e-15)
 
-            
-            labels_s=graph_pair.y_s
-            labels_t=graph_pair.y_t
+            labels_s = graph_pair.y_s
+            labels_t = graph_pair.y_t
 
             one_hot_matrix_s = F.one_hot(labels_s, num_classes=3).float()
             one_hot_matrix_t = F.one_hot(labels_t, num_classes=3).float()
 
             weight = torch.diag(1 / safe_col_sums)
-            weighted_P=torch.mm(P[0],weight).T
+            weighted_P = torch.mm(P[0], weight).T
             labels_probability = torch.mm(weighted_P, one_hot_matrix_s)
 
-
-            log_probs =  torch.log(torch.softmax(torch.clamp(labels_probability, min=1e-10),dim=1))          
+            log_probs = torch.log(
+                torch.softmax(torch.clamp(labels_probability, min=1e-10), dim=1)
+            )
             predicted_labels = torch.max(log_probs, axis=1).indices
-            bool_accuracy = (predicted_labels == labels_t)
-            #loss = criterion(logits, labels_t)
-            loss = F.kl_div(log_probs, one_hot_matrix_t, reduction='batchmean')
+            bool_accuracy = predicted_labels == labels_t
+            # loss = criterion(logits, labels_t)
+            loss = F.kl_div(log_probs, one_hot_matrix_t, reduction="batchmean")
 
             accuracy = torch.sum(bool_accuracy) / n_nodes_target
-            accuracy=accuracy.detach()
+            accuracy = accuracy.detach()
             all_accuracy_3[k, i, j] = accuracy
 
 
-#%%
+# %%
 
-torch.save(all_accuracy_2,"results/figure_files/all_accuracy_2")
-torch.save(all_accuracy_3,"results/figure_files/all_accuracy_3")
-torch.save(rhos,"results/figure_files/rhos")
-torch.save(alphas,"results/figure_files/alphas")
-
-
-
+torch.save(all_accuracy_2, "results/figure_files/all_accuracy_2")
+torch.save(all_accuracy_3, "results/figure_files/all_accuracy_3")
+torch.save(rhos, "results/figure_files/rhos")
+torch.save(alphas, "results/figure_files/alphas")

@@ -16,6 +16,7 @@ from .utils_fugw import (
 class NaNException(Exception):
     pass
 
+
 def _add_dict(d, new_d):
     """Add values of dictionary new_d to dictionary d."""
     for key, value in new_d.items():
@@ -110,9 +111,7 @@ class FUGWSolver(BaseSolver):
         if alpha != 0:
             A = X_sqr @ pi1
             B = Y_sqr @ pi2
-            gromov_wasserstein_cost = (
-                A[:, None] + B[None, :] - 2 * X @ pi @ Y.T
-            )
+            gromov_wasserstein_cost = A[:, None] + B[None, :] - 2 * X @ pi @ Y.T
 
             cost += alpha * gromov_wasserstein_cost
 
@@ -184,7 +183,7 @@ class FUGWSolver(BaseSolver):
         if alpha != 1 and D is not None:
             loss_wasserstein = ((D * pi).sum() + (D * gamma).sum()) / 2
             loss += (1 - alpha) * loss_wasserstein
-            
+
         if alpha != 0:
             A = (X_sqr @ gamma1).dot(pi1)
             B = (Y_sqr @ gamma2).dot(pi2)
@@ -234,9 +233,7 @@ class FUGWSolver(BaseSolver):
 
         weight_ws = pi1.dot(ws) / l2_pi1
         weight_wt = pi2.dot(wt) / l2_pi2
-        weight_wst = (
-            (pi * ws_dot_wt).sum() / l2_pi if reg_mode == "joint" else 1
-        )
+        weight_wst = (pi * ws_dot_wt).sum() / l2_pi if reg_mode == "joint" else 1
         weighted_tuple_weights = (
             weight_ws * ws,
             weight_wt * wt,
@@ -350,8 +347,7 @@ class FUGWSolver(BaseSolver):
             or (rho_s == 0 and rho_t == float("inf"))
         ):
             raise ValueError(
-                "Invalid rho and eps. Unregularized semi-relaxed GW is not "
-                "supported."
+                "Invalid rho and eps. Unregularized semi-relaxed GW is not supported."
             )
 
         # sanity check
@@ -496,9 +492,7 @@ class FUGWSolver(BaseSolver):
 
             elif divergence == "l2":
                 tuple_weights, uot_params = self_get_params_uot_l2(pi)
-                gamma = self_solver_mm_l2(
-                    cost_gamma, gamma, uot_params, tuple_weights
-                )
+                gamma = self_solver_mm_l2(cost_gamma, gamma, uot_params, tuple_weights)
 
             # Rescale gamma
             gamma = (mass_pi / gamma.sum()).sqrt() * gamma
@@ -513,27 +507,20 @@ class FUGWSolver(BaseSolver):
                 uot_params = (new_rho_s, new_rho_t, new_eps)
 
                 if solver == "sinkhorn":
-                    duals_pi, pi = self_solver_sinkhorn(
-                        cost_pi, duals_pi, uot_params
-                    )
+                    duals_pi, pi = self_solver_sinkhorn(cost_pi, duals_pi, uot_params)
                 elif solver == "mm":
                     pi = self_solver_mm_kl(cost_pi, pi, uot_params)
                 elif solver == "ibpp":
-                    duals_pi, pi = self_solver_ibpp(
-                        cost_pi, pi, duals_pi, uot_params
-                    )
+                    duals_pi, pi = self_solver_ibpp(cost_pi, pi, duals_pi, uot_params)
                     if pi.isnan().any():
-                          print("nan found")
-                          return {
+                        print("nan found")
+                        return {
                             "pi": torch.nan,
                             "gamma": torch.nan,
                             "duals_pi": torch.nan,
                             "duals_gamma": torch.nan,
-                            "loss": torch.nan
+                            "loss": torch.nan,
                         }
-
-                    
-
 
             elif divergence == "l2":
                 tuple_weights, uot_params = self_get_params_uot_l2(gamma)
@@ -555,12 +542,11 @@ class FUGWSolver(BaseSolver):
                     loss_diff = abs(loss["total"][-2] - loss["total"][-1])
 
             idx += 1
-            t1= time.time()
-            loss_times.append(t1-t0)
+            t1 = time.time()
+            loss_times.append(t1 - t0)
 
-    #    if pi.isnan().any() or gamma.isnan().any():
-    #        raise ValueError("There is Nan in coupling")
-
+        #    if pi.isnan().any() or gamma.isnan().any():
+        #        raise ValueError("There is Nan in coupling")
 
         return {
             "pi": pi,
@@ -568,7 +554,5 @@ class FUGWSolver(BaseSolver):
             "duals_pi": duals_pi,
             "duals_gamma": duals_gamma,
             "loss": loss,
-            "times":loss_times
+            "times": loss_times,
         }
-
-

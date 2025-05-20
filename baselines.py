@@ -1,4 +1,3 @@
-
 import json
 from tqdm import tqdm
 import torch
@@ -22,18 +21,18 @@ np.random.seed(42)
 random.seed(42)
 
 
-#Load data
+# Load data
 ######################################################################################################
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-save=True
+save = True
 
-param_file='params_IBC_individual_1000_local.json'
+param_file = "params_IBC_individual_1000_local.json"
 n_graphs_to_test = 100
-param_file=os.path.join("parameter_files",param_file)
+param_file = os.path.join("parameter_files", param_file)
 with open(param_file, "r") as file:
     parameters = json.load(file)
 path_save = "baselines_gpu"
@@ -44,7 +43,7 @@ dataset = get_dataset(
     geodesic=parameters["geodesic"],
     random_sizes=parameters["random_sizes"],
     write_dir_contrasts=parameters["write_dir_contrasts"],
-    no_preloading=True
+    no_preloading=True,
 )
 test_amount, val_amount = (
     int(dataset.__len__() * parameters["test_size"]),
@@ -82,18 +81,39 @@ model.eval()
 # load loss
 loss = get_loss(parameters)
 
-#initialize result dictionary
+# initialize result dictionary
 
-dic_results={"mm":{},"lbfgsb":{},"ibpp":{},"filenames_test_solver":[]}
-dic_results["mm"]={"plans_test_solver":[],"losses_test_solver":[],"times_test_solver":[]}
-dic_results["lbfgsb"]={"plans_test_solver":[],"losses_test_solver":[],"times_test_solver":[]}
-dic_results["ibpp"]={"plans_test_solver":[],"losses_test_solver":[],"times_test_solver":[]}
-dic_results["gnn"]={"plans_test_solver":[],"losses_test_solver":[],"times_test_solver":[]}
-dic_results["entropic"]={"plans_test_solver":[],"losses_test_solver":[],"times_test_solver":[]}
+dic_results = {"mm": {}, "lbfgsb": {}, "ibpp": {}, "filenames_test_solver": []}
+dic_results["mm"] = {
+    "plans_test_solver": [],
+    "losses_test_solver": [],
+    "times_test_solver": [],
+}
+dic_results["lbfgsb"] = {
+    "plans_test_solver": [],
+    "losses_test_solver": [],
+    "times_test_solver": [],
+}
+dic_results["ibpp"] = {
+    "plans_test_solver": [],
+    "losses_test_solver": [],
+    "times_test_solver": [],
+}
+dic_results["gnn"] = {
+    "plans_test_solver": [],
+    "losses_test_solver": [],
+    "times_test_solver": [],
+}
+dic_results["entropic"] = {
+    "plans_test_solver": [],
+    "losses_test_solver": [],
+    "times_test_solver": [],
+}
 
 
-
-rhos = torch.exp(torch.rand((n_graphs_to_test, 1), device=device) * -parameters["rho_range"])
+rhos = torch.exp(
+    torch.rand((n_graphs_to_test, 1), device=device) * -parameters["rho_range"]
+)
 alphas = torch.rand((n_graphs_to_test, 1), device=device)
 dic_results["rhos"] = rhos
 dic_results["alphas"] = alphas
@@ -123,33 +143,53 @@ for type in ["test"]:
         C2 = C2 / (10 * torch.mean(C2))
         M = M / (10 * torch.mean(M))
 
+        alpha_POT = (1 - alpha) / alpha
 
-        alpha_POT=(1-alpha)/alpha
-        
-        
         print("mm")
         try:
             start_mm = time.time()
-            solution_mm=fused_unbalanced_gromov_wasserstein(C1,C2, M=M,epsilon=0,alpha=alpha_POT,reg_marginals=(rho.item()/alpha.item()),log=True,unbalanced_solver="mm")
-            end_mm=time.time()
+            solution_mm = fused_unbalanced_gromov_wasserstein(
+                C1,
+                C2,
+                M=M,
+                epsilon=0,
+                alpha=alpha_POT,
+                reg_marginals=(rho.item() / alpha.item()),
+                log=True,
+                unbalanced_solver="mm",
+            )
+            end_mm = time.time()
             dic_results["mm"]["plans_test_solver"].append(solution_mm[0])
-            dic_results["mm"]["losses_test_solver"].append(solution_mm[2]["fugw_cost"]*alpha)
-            dic_results["mm"]["times_test_solver"].append(end_mm-start_mm)
+            dic_results["mm"]["losses_test_solver"].append(
+                solution_mm[2]["fugw_cost"] * alpha
+            )
+            dic_results["mm"]["times_test_solver"].append(end_mm - start_mm)
         except ValueError as e:
             if "NaN" in str(e):  # optionally check that it's a NaN-related error
                 print("Caught NaN error in mm, skipping...")
                 dic_results["mm"]["plans_test_solver"].append(np.nan)
                 dic_results["mm"]["losses_test_solver"].append(np.nan)
                 dic_results["mm"]["times_test_solver"].append(np.nan)
- 
+
         print("lbfgsb")
-        try:   
+        try:
             start_lbfgsb = time.time()
-            solution_lbfgsb=fused_unbalanced_gromov_wasserstein(C1,C2, M=M,epsilon=0,alpha=alpha_POT,reg_marginals=(rho.item()/alpha.item()),log=True,unbalanced_solver="lbfgsb")
+            solution_lbfgsb = fused_unbalanced_gromov_wasserstein(
+                C1,
+                C2,
+                M=M,
+                epsilon=0,
+                alpha=alpha_POT,
+                reg_marginals=(rho.item() / alpha.item()),
+                log=True,
+                unbalanced_solver="lbfgsb",
+            )
             end_lbfgsb = time.time()
             dic_results["lbfgsb"]["plans_test_solver"].append(solution_lbfgsb[0])
-            dic_results["lbfgsb"]["losses_test_solver"].append(solution_lbfgsb[2]["fugw_cost"]*alpha)
-            dic_results["lbfgsb"]["times_test_solver"].append(end_lbfgsb-start_lbfgsb)
+            dic_results["lbfgsb"]["losses_test_solver"].append(
+                solution_lbfgsb[2]["fugw_cost"] * alpha
+            )
+            dic_results["lbfgsb"]["times_test_solver"].append(end_lbfgsb - start_lbfgsb)
         except ValueError as e:
             if "NaN" in str(e):  # optionally check that it's a NaN-related error
                 print("Caught NaN error in lbfgsb, skipping...")
@@ -158,7 +198,7 @@ for type in ["test"]:
                 dic_results["lbfgsb"]["times_test_solver"].append(np.nan)
 
         print("entropic")
-        try:   
+        try:
             start_entropic = time.time()
             solver = FUGWSolver(tol_bcd=1e-6, tol_uot=1e-6, tol_loss=1e-6)
 
@@ -194,14 +234,16 @@ for type in ["test"]:
             )["total"]
             dic_results["entropic"]["plans_test_solver"].append(solution["pi"])
             dic_results["entropic"]["losses_test_solver"].append(loss_entropic)
-            dic_results["entropic"]["times_test_solver"].append(end_entropic-start_entropic)
+            dic_results["entropic"]["times_test_solver"].append(
+                end_entropic - start_entropic
+            )
         except ValueError as e:
-            if "NaN" in str(e): 
+            if "NaN" in str(e):
                 print("Caught NaN error in entropic, skipping...")
                 dic_results["entropic"]["plans_test_solver"].append(np.nan)
                 dic_results["entropic"]["losses_test_solver"].append(np.nan)
                 dic_results["entropic"]["times_test_solver"].append(np.nan)
-        
+
         print("ibpp")
         start = time.time()
         solver = FUGWSolver(tol_bcd=1e-6, tol_uot=1e-6, tol_loss=1e-6)
@@ -222,13 +264,14 @@ for type in ["test"]:
 
         try:
             dic_results["ibpp"]["plans_test_solver"].append(solution["pi"])
-            dic_results["ibpp"]["losses_test_solver"].append(solution["loss"]["total"][-1])
-            dic_results["ibpp"]["times_test_solver"].append(end-start)
+            dic_results["ibpp"]["losses_test_solver"].append(
+                solution["loss"]["total"][-1]
+            )
+            dic_results["ibpp"]["times_test_solver"].append(end - start)
         except TypeError:
             dic_results["ibpp"]["plans_test_solver"].append(torch.nan)
             dic_results["ibpp"]["losses_test_solver"].append(torch.nan)
             dic_results["ibpp"]["times_test_solver"].append(torch.nan)
-
 
         graph_pair = Batch.from_data_list([graph_pair], follow_batch=["x_s", "x_t"])
         graph_pair = graph_pair.to(device)
@@ -279,13 +322,8 @@ for type in ["test"]:
         )
         dic_results["gnn"]["plans_test_solver"].append(P)
         dic_results["gnn"]["losses_test_solver"].append(L["total"])
-        dic_results["gnn"]["times_test_solver"].append(end-start)
-        
+        dic_results["gnn"]["times_test_solver"].append(end - start)
+
 
 if save:
-    torch.save(
-        dic_results,
-        path_save
-    )
-
-
+    torch.save(dic_results, path_save)

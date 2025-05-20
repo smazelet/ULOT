@@ -1,7 +1,9 @@
 import torch
 
+
 class NaNException(Exception):
     pass
+
 
 class BaseSolver:
     def __init__(
@@ -68,14 +70,11 @@ class BaseSolver:
 
         if tol_bcd is None and tol_loss is None and nits_bcd is None:
             raise ValueError(
-                "At least one of nits_bcd, tol_bcd or tol_loss must be "
-                "provided."
+                "At least one of nits_bcd, tol_bcd or tol_loss must be provided."
             )
 
         if tol_uot is None and nits_uot is None:
-            raise ValueError(
-                "At least one of nits_uot or tol_uot must be provided."
-            )
+            raise ValueError("At least one of nits_uot or tol_uot must be provided.")
 
         self.nits_bcd = nits_bcd
         self.nits_uot = nits_uot
@@ -88,9 +87,7 @@ class BaseSolver:
         self.ibpp_nits_sinkhorn = ibpp_nits_sinkhorn
 
 
-def solver_sinkhorn(
-    cost, init_duals, uot_params, tuple_weights, train_params
-):
+def solver_sinkhorn(cost, init_duals, uot_params, tuple_weights, train_params):
     """
     Scaling algorithm (ie Sinkhorn algorithm).
     Code adapted from Séjourné et al 2020:
@@ -127,9 +124,7 @@ def solver_sinkhorn(
     return (u, v), pi
 
 
-def solver_mm(
-    cost, init_pi, uot_params, tuple_weights, train_params
-):
+def solver_mm(cost, init_pi, uot_params, tuple_weights, train_params):
     """Solve (regularized) UOT using the majorization-minimization algorithm.
 
     Allow epsilon to be 0 but rho_s and rho_t can't be infinity.
@@ -153,7 +148,11 @@ def solver_mm(
     tau_s = rho_s / sum_param
     tau_t = rho_t / sum_param
     r = eps / sum_param
-    K = ws[:, None] ** (tau_s + r) * wt[None, :] ** (tau_t + r) * (-cost / sum_param).exp()
+    K = (
+        ws[:, None] ** (tau_s + r)
+        * wt[None, :] ** (tau_t + r)
+        * (-cost / sum_param).exp()
+    )
 
     pi1, pi2, pi = init_pi.sum(1), init_pi.sum(0), init_pi
 
@@ -170,9 +169,7 @@ def solver_mm(
     return pi
 
 
-def solver_mm_l2(
-    cost, init_pi, uot_params, tuple_weights, train_params, verbose=True
-):
+def solver_mm_l2(cost, init_pi, uot_params, tuple_weights, train_params, verbose=True):
     """
     Solve regularized UOT with L2-squared norm using
     the majorization-minimization algorithm. Allow epsilon to be 0
@@ -245,15 +242,15 @@ def solver_ibpp(
         pi = u[:, None] * G * v[None, :]
 
         m1 = pi.sum(1)
-   #     if m1.isnan().any() or m1.isinf().any():
-   #         raise ValueError(
-   #             "There is NaN in coupling. "
-   #             "You may want to increase ibpp_eps_base "
-   #             f"(current value: {eps_base})."
-   #         )
+        #     if m1.isnan().any() or m1.isinf().any():
+        #         raise ValueError(
+        #             "There is NaN in coupling. "
+        #             "You may want to increase ibpp_eps_base "
+        #             f"(current value: {eps_base})."
+        #         )
 
         if m1.isnan().any() or m1.isinf().any():
-            return (u,v), pi
+            return (u, v), pi
 
         if idx % eval_freq == 0:
             err = (m1 - m1_prev).abs().max()
@@ -279,9 +276,7 @@ def compute_unnormalized_kl(p, q):
     -------
     unnormalized_kl: float"""
     # By convention: 0 log 0 = 0
-    entropy = torch.nan_to_num(
-        p * (p / q).log(), nan=0.0, posinf=0.0, neginf=0.0
-    ).sum()
+    entropy = torch.nan_to_num(p * (p / q).log(), nan=0.0, posinf=0.0, neginf=0.0).sum()
     return entropy
 
 

@@ -205,10 +205,10 @@ def get_filename(
         Filename for the given file type and parameters
     """
 
-    if file_type == "true_losses":
+    if file_type == "solver_losses":
         if params["dataset"] == "SBM":
             filename = (
-                "results/true_losses/"
+                "results/solver_losses/"
                 + params["dataset"]
                 + "_"
                 + str(params["n_pairs"])

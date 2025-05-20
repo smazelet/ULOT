@@ -10,14 +10,13 @@ class matching_layer(nn.Module):
     """
     Matching layer
     """
-    def __init__(
-        self, temperature_value=3.0, in_channels=None, d_alpha_enc=6
-    ):
-        """"
+
+    def __init__(self, temperature_value=3.0, in_channels=None, d_alpha_enc=6):
+        """ "
         intialize_scale: float
            Temperature for the softmax
         in_channels: int
-           Input feature dimension 
+           Input feature dimension
         d_pos_enc: int
             Dimension of the alpha encoding
         """
@@ -65,7 +64,7 @@ class matching_layer(nn.Module):
         num_nodes1 = mask1.sum(dim=1, keepdim=True).unsqueeze(-1)
         num_nodes2 = mask2.sum(dim=1, keepdim=True).unsqueeze(-1)
 
-        #volume on the nodes
+        # volume on the nodes
         x1_volume = torch.sigmoid(self.linear_volume(x1_rho_alpha))
         x2_volume = torch.sigmoid(self.linear_volume(x2_rho_alpha))
         attention1 = attention1 * x1_volume
@@ -76,11 +75,11 @@ class matching_layer(nn.Module):
         return x1_match, x2_match, matching, mask1, mask2
 
 
-
 class GMN_layer(nn.Module):
     """
     Undividual ULOT layer
     """
+
     def __init__(
         self,
         in_channels,
@@ -109,9 +108,7 @@ class GMN_layer(nn.Module):
         super().__init__()
         self.linear = Linear(in_channels, hidden_channels_gcn)
         self.linear_match = Linear(in_channels, hidden_channels_gcn)
-        self.match = matching_layer(
-            temperature_value, in_channels, d_alpha_enc
-        )
+        self.match = matching_layer(temperature_value, in_channels, d_alpha_enc)
         self.message = Sequential(
             " x,  edge_index,",
             [
@@ -168,6 +165,7 @@ class ULOT_net(nn.Module):
     """
     ULOT network
     """
+
     def __init__(
         self,
         in_channels,
@@ -188,9 +186,9 @@ class ULOT_net(nn.Module):
         out_channels: int
             Output feature dimension
         num_layers: int
-            Number of layers        
+            Number of layers
         intialize_scale: float
-            Temperature for the softmax 
+            Temperature for the softmax
         d_alpha_enc: int
             Dimension of the alpha encoding
         """
@@ -252,7 +250,7 @@ class ULOT_net(nn.Module):
         return P, mask1, mask2
 
 
-def alpha_encoding(alpha,d):
+def alpha_encoding(alpha, d):
     """
     Positional encoding for the alpha values
     alpha: torch.Tensor
@@ -265,9 +263,9 @@ def alpha_encoding(alpha,d):
     j_values = torch.arange(d, device=alpha.device)
     alphas = alpha[:, None]
 
-    cos_part = torch.cos(torch.pi * j_values[:d_half, None] *  alphas) 
-    sin_part = torch.sin(torch.pi * j_values[d_half:, None] * (1 -  alphas)) 
-    values = torch.empty((N, d), device=alpha.device)  
-    values[:, :d_half] = cos_part.squeeze() 
-    values[:, d_half:] = sin_part.squeeze() 
+    cos_part = torch.cos(torch.pi * j_values[:d_half, None] * alphas)
+    sin_part = torch.sin(torch.pi * j_values[d_half:, None] * (1 - alphas))
+    values = torch.empty((N, d), device=alpha.device)
+    values[:, :d_half] = cos_part.squeeze()
+    values[:, d_half:] = sin_part.squeeze()
     return values

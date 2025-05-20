@@ -22,10 +22,15 @@ np.random.seed(42)
 random.seed(42)
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-param_file', type=str,
-                    help='name of the parameter file',
-                    default='params_SBM.json')
-parser.add_argument('--nosave', dest='save', action='store_false', help='Do not save results')
+parser.add_argument(
+    "-param_file",
+    type=str,
+    help="name of the parameter file",
+    default="params_SBM.json",
+)
+parser.add_argument(
+    "--nosave", dest="save", action="store_false", help="Do not save results"
+)
 parser.set_defaults(save=True)
 
 
@@ -36,14 +41,12 @@ train_one_graph = False
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
-param_file=os.path.join("parameter_files",args['param_file'])
+param_file = os.path.join("parameter_files", args["param_file"])
 with open(param_file, "r") as file:
     parameters = json.load(file)
 
 # load the data
-dataset = get_dataset(
-    parameters
-)
+dataset = get_dataset(parameters)
 test_amount, val_amount = (
     int(dataset.__len__() * parameters["test_size"]),
     int(dataset.__len__() * parameters["val_size"]),
@@ -116,7 +119,7 @@ for epoch in range(parameters["n_epochs"]):
         val_dataloader,
         device,
         max_n_pairs=max_samples_per_epoch,
-        rho_range=parameters["rho_range"]
+        rho_range=parameters["rho_range"],
     )
 
     val_losses["fgw"].append(L_val["total"])
@@ -127,7 +130,6 @@ for epoch in range(parameters["n_epochs"]):
     print(
         f"Epoch {epoch}, FGW: {L_val['total']},  GW: {L_val['gromov']}, W: {L_val['wasserstein']},  marginals: {L_val['marginals']}"
     )
-
 
     if epoch % 50 == 0 or epoch == parameters["n_epochs"] - 1:
         if save:

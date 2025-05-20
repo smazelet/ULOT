@@ -39,7 +39,7 @@ checkpoint = torch.load(
 model.load_state_dict(checkpoint["model_state_dict"])
 model.eval()
 
-# %% Find best parameters 2 clusters
+# %% Optimize the parameters rho and alpha on the label propagation task for clusters (1,2,3) -> (1,2)
 ###################################################################################################
 
 torch.manual_seed(42)
@@ -173,7 +173,7 @@ for k in tqdm(range(n_graphs)):
             alphas.clamp_(min=0, max=1)
     lens.append(n)
 
-# %% Find best parameters 3 clusters
+# %% Optimize the parameters rho and alpha on the label propagation task for clusters (1,2,3) -> (1,2,3)
 ###################################################################################################
 
 torch.manual_seed(42)
@@ -307,8 +307,7 @@ for k in tqdm(range(n_graphs)):
     lens_3.append(n)
 
 
-# %%
-
+# %% Visualize the alpha and rho trajectories
 
 def truncate_colormap(cmap, minval=0.5, maxval=1.0, n=100):
     new_cmap = LinearSegmentedColormap.from_list(
@@ -372,13 +371,6 @@ ax.set_ylabel(r"$\alpha$")
 pl.legend()
 pl.grid()
 
-# sm = pl.cm.ScalarMappable(cmap=cm.Reds, norm=norm)
-# sm.set_array([])
-
-# cbar = pl.colorbar(sm, ax=ax, label="Step")
-# cbar.set_ticks([x.min(),x.max()])
-# cbar.set_ticklabels([0,2000])
-# pl.savefig("figures/optim_2.pdf", bbox_inches="tight")
 fig, ax = pl.subplots(figsize=(2.5, 2.5))
 
 
@@ -422,12 +414,6 @@ for i in range(n_graphs):
     else:
         ax.plot(x[-1], y[-1], marker="o", markersize=2, color="black", zorder=10)
 
-
-# sm = pl.cm.ScalarMappable(cmap=cm.Blues, norm=norm)
-
-# cbar = pl.colorbar(sm, ax=ax, label="Step")
-# cbar.set_ticks([t.min(),t.max()])
-# cbar.set_ticklabels([0,2000])
 ax.set_title(
     "Optim. $(\\alpha,\\rho)$ with respect \n to KL for $(1,2,3) \\rightarrow (1,2,3)$ "
 )
@@ -438,7 +424,7 @@ ax.set_xlabel(r"$\rho$")
 ax.set_ylabel(r"$\alpha$")
 pl.legend()
 pl.grid()
-# pl.savefig("figures/optim_3.pdf", bbox_inches="tight")
+
 
 # %% test for clusters (1,2,3) -> (1,2,3)
 ############################################

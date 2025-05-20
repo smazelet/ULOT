@@ -21,6 +21,7 @@ torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
 
+#parser arguments
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-param_file",
@@ -36,11 +37,11 @@ parser.set_defaults(save=True)
 
 args = vars(parser.parse_args())
 save = args["save"]
-train_one_graph = False
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(torch.cuda.is_available())
 
+#load the parameter file
 param_file = os.path.join("parameter_files", args["param_file"])
 with open(param_file, "r") as file:
     parameters = json.load(file)
@@ -59,7 +60,8 @@ train_set, val_set, _ = torch.utils.data.random_split(
 
 print(f"number of pairs : {len(dataset)}")
 
-max_samples_per_epoch = 100
+max_samples_per_epoch = 5000  #maximum number of pairs to sample per epoch
+
 
 indices = np.random.choice(len(dataset), max_samples_per_epoch, replace=False)
 train_dataloader = DataLoader(
@@ -96,7 +98,7 @@ val_losses = {"fgw": [], "gw": [], "w": [], "marginals": []}
 
 
 print("training")
-
+# start training
 for epoch in range(parameters["n_epochs"]):
     L_train = train(
         model,

@@ -17,104 +17,7 @@ from ulot.utils import (
 import random
 
 
-# %%
-
-
-def plot_3d_graph_pair(
-    data: Data,
-    plan,
-    node_size=100,
-    edge_color="gray",
-    title=None,
-    ax=None,
-    min=None,
-    max=None,
-    xlim=None,
-    ylim=None,
-    zlim=None,
-):
-    """
-    Plots a 3D graph using node features as 3D coordinates, with RGB node colors.
-
-    Args:
-        data (Data): PyTorch Geometric data object.
-        node_size (int): Size of the plotted nodes.
-        edge_color (str): Color of the edges.
-    """
-    assert data.x_s.size(1) == 3, "Node features must be 3D coordinates."
-
-    pos_s = data.x_s.cpu().numpy().copy()  # Get node positions
-    pos_t = data.x_t.cpu().numpy().copy()  # Get node positions
-    edge_index_s = data.edge_index_s.cpu().numpy()
-    edge_index_t = data.edge_index_t.cpu().numpy()
-
-    # Normalize node positions to [0,1] for RGB colors
-    node_colors_s = (pos_s - min) / (max - min)  # Avoid division by zero
-    node_colors_t = (pos_t - min) / (max - min)  # Avoid division by zero
-
-    pos_t_ = pos_t
-    pos_t_[:, 2] += 1000
-
-    # Draw edges
-    for i, j in edge_index_s.T:
-        ax.plot(
-            [pos_s[i, 0], pos_s[j, 0]],
-            [pos_s[i, 1], pos_s[j, 1]],
-            [pos_s[i, 2], pos_s[j, 2]],
-            color=edge_color,
-            alpha=0.5,
-            linewidth=0.7,
-        )
-
-    for i, j in edge_index_t.T:
-        ax.plot(
-            [pos_t[i, 0], pos_t_[j, 0]],
-            [pos_t[i, 1], pos_t_[j, 1]],
-            [pos_t[i, 2], pos_t_[j, 2]],
-            color=edge_color,
-            alpha=0.5,
-            linewidth=0.7,
-        )
-
-    # Draw nodes with RGB colors
-    ax.scatter(
-        pos_s[:, 0],
-        pos_s[:, 1],
-        pos_s[:, 2],
-        s=node_size,
-        c=node_colors_s,
-        depthshade=True,
-        alpha=0.4,
-        linewidths=1,
-        edgecolors="black",
-    )
-
-    # Draw nodes with RGB colors
-    ax.scatter(
-        pos_t_[:, 0],
-        pos_t_[:, 1],
-        pos_t_[:, 2],
-        s=node_size,
-        c=node_colors_t,
-        depthshade=True,
-        alpha=0.4,
-        linewidths=1,
-        edgecolors="black",
-    )
-
-    for i in range(plan.shape[0]):
-        for j in range(plan.shape[1]):
-            ax.plot(
-                [pos_s[i, 0], pos_t_[j, 0]],
-                [pos_s[i, 1], pos_t_[j, 1]],
-                [pos_s[i, 2], pos_t_[j, 2]],
-                color=edge_color,
-                alpha=0.5,
-                linewidth=plan[i, j],
-            )
-
-    ax.view_init(elev=30, azim=45)
-
+# %% function for generating SBMs with two clusters
 
 def create_sbm_2_clusters(
     n_graphs=1,
@@ -336,6 +239,7 @@ torch.save(all_P_solver, "results/figure_files/all_P_solver_rho")
 
 # %% Plans for increasing alpha
 ####################################################################
+#function for generating SBMs with three clusters
 
 torch.manual_seed(42)
 np.random.seed(1)

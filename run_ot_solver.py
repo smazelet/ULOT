@@ -82,7 +82,7 @@ alphas = torch.rand((n_graphs_to_test, 1), device=device)
 dic_results["rhos"] = rhos
 dic_results["alphas"] = alphas
 
-# test the trained model on the test set
+# test the trained model on the test and train set
 for type in ["train", "test"]:
     if type == "test":
         inds_graph = inds_graph_test

@@ -319,7 +319,6 @@ param_file = "parameter_files/params_SBM_10000.json"
 with open(param_file, "r") as file:
     parameters = json.load(file)
 
-
 path_test_performances_sbm = get_filename(parameters, "test_performances")
 path_solver_losses_sbm = get_filename(parameters, "solver_losses")
 
@@ -372,49 +371,6 @@ pl.grid()
 pl.title("FUGW loss for ULOT and solver")
 pl.tight_layout()
 
-
-# %% label propagation
-##################################################################################################
-##################################################################################################
-
-all_alphas_2 = torch.load("results/all_alphas_2_no_weight_bis")
-all_rhos_2 = torch.load("results/all_rhos_2_no_weight_bis")
-
-all_alphas_3 = torch.load("results/all_alphas_3_no_weight")
-all_rhos_3 = torch.load("results/all_rhos_3_no_weight")
-
-pl.figure(1, figsize=(3, 3))
-pl.hist2d(
-    all_alphas_2[:, -1],
-    all_rhos_2[:, -1],
-    cmap="Blues",
-    bins=[10, 10],
-    range=np.array([[0, 1], [0, 1]]),
-    cmin=0.0000001,
-    density=True,
-)
-pl.colorbar()
-
-pl.xlabel(r"$\alpha$")
-pl.ylabel(r"$\rho$")
-
-pl.title("2 clusters")
-pl.figure(2, figsize=(3, 3))
-pl.hist2d(
-    all_alphas_3[:, -1],
-    all_rhos_3[:, -1],
-    cmap="Reds",
-    bins=[10, 10],
-    range=np.array([[0, 1], [0, 1]]),
-    cmin=0.0000001,
-    density=True,
-)
-pl.colorbar()
-pl.title("3 clusters")
-
-
-pl.xlabel(r"$\alpha$")
-pl.ylabel(r"$\rho$")
 
 
 # %% Functional minimization
@@ -623,21 +579,6 @@ for i in range(2, len(steps_01)):
 
 pl.subplots_adjust(hspace=0.5)
 
-# %% SBM mass similarity matrix
-##################################################################################################
-##################################################################################################
-
-
-graphs_embedding = torch.load("results/graphs_embedding")
-pl.figure(figsize=(3, 3))
-pl.imshow(graphs_embedding.detach())
-cbar = pl.colorbar(fraction=0.046, pad=0.04, shrink=0.8)
-cbar.set_label("ULOT plan mass")
-cbar.ax.yaxis.set_major_formatter(ticker.FormatStrFormatter("%.1f"))
-
-pl.xticks([10, 30, 50], labels=["(1,2)", "(2,3)", "(1,2,3)"])
-pl.yticks([10, 30, 50], labels=["(1,2)", "(2,3)", "(1,2,3)"])
-pl.title("Similarity matrix")
 
 # %% Accuracy surfaces for clusters (1,2,3) -> (1,2,3)
 ##################################################################################################

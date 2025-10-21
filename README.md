@@ -19,6 +19,11 @@ It is organized in the following way:
 - `parameter_files`: parameter files in the JSON format for the model trained on SBMs and the model trained on the IBC dataset
 
 
-
-
+# To cite this paper
+@article{mazelet2025unsupervised,
+  title={Unsupervised Learning for Optimal Transport plan prediction between unbalanced graphs},
+  author={Mazelet, Sonia and Flamary, R{\'e}mi and Thirion, Bertrand},
+  journal={arXiv preprint arXiv:2506.12025},
+  year={2025}
+}
 

@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ulot-plan-prediction"
+version = "0.1.0"
+description = "Unsupervised learning for optimal transport plan prediction between unbalanced graphs."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "Sonia Mazelet" },
+  { name = "Remi Flamary" },
+  { name = "Bertrand Thirion" },
+]
+keywords = [
+  "optimal transport",
+  "unbalanced graphs",
+  "graph neural networks",
+  "FUGW",
+  "ULOT",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+  "POT",
+  "matplotlib>=3.9",
+  "networkx>=3.4",
+  "numpy>=2.0",
+  "scikit-learn>=1.5",
+  "scipy>=1.14",
+  "torch>=2.4",
+  "torch-geometric>=2.6",
+  "tqdm>=4.66",
+]
+
+[project.urls]
+Paper = "https://arxiv.org/abs/2506.12025"
+
+[project.scripts]
+ulot-accuracy-surfaces = "ulot.cli:accuracy_surfaces"
+ulot-effect-rho-alpha = "ulot.cli:effect_rho_alpha"
+ulot-functional-minimization = "ulot.cli:functional_minimization"
+ulot-label-propagation = "ulot.cli:label_propagation"
+ulot-similarity-mass = "ulot.cli:similarity_mass"
+ulot-solve = "ulot.cli:solve"
+ulot-test = "ulot.cli:test"
+ulot-train = "ulot.cli:train"
+ulot-visus = "ulot.cli:visus"
+
+[tool.setuptools]
+packages = ["ulot"]
+py-modules = [
+  "accuracy_surfaces",
+  "effect_rho_alpha",
+  "functional_minimization",
+  "label_propagation",
+  "run_ot_solver",
+  "run_test",
+  "run_train",
+  "similarity_mass",
+  "visus",
+]
+include-package-data = true
+
+[tool.setuptools.data-files]
+"share/ulot/parameter_files" = ["parameter_files/*.json"]
+"share/ulot/results/solver_losses" = ["results/solver_losses/*"]
+"share/ulot/results/figure_files" = ["results/figure_files/*"]
+"share/ulot/results/ULOT/test_performances" = ["results/ULOT/test_performances/*"]
+"share/ulot/results/ULOT/trained_model" = ["results/ULOT/trained_model/*"]

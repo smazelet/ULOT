@@ -23,6 +23,7 @@ random.seed(42)
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "-param_file",
+    "--param_file",
     type=str,
     help="name of the parameter file",
     default="params_SBM_10000.json",
